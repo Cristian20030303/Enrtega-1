@@ -1,7 +1,7 @@
 # Enrtega-1
 # 🚗 Parqueadero UdeA - “ParqueaFácil”
 
-![Logo del Parqueadero]([Parqueadero udea.jpg](https://github.com/Cristian20030303/Enrtega-1/blob/main/Parqueadero%20udea.jpg?raw=true))
+![Logo del Parqueadero](https://github.com/Cristian20030303/Enrtega-1/blob/main/Parqueadero%20udea.jpg?raw=true)
 
 ## 📌 Descripción General
 
