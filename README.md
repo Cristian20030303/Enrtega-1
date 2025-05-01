@@ -5,7 +5,7 @@
 
 ## Descripción General
 
-**Parqueadero el olvido** es un sistema de gestión para el parqueadero de la Universidad de Antioquia. Este software de consola en Python permite registrar usuarios, ingresar y retirar vehículos, calcular cobros, generar reportes administrativos y exportar datos en archivos CSV. El proyecto fue desarrollado y busca automatizar la operación del parqueadero, mejorando la eficiencia y trazabilidad del servicio.
+**Parqueadero el olvido** es un sistema de gestión para el parqueadero de la Universidad de Antioquia. Este software de consola en Python permite registrar usuarios, ingresar y retirar vehículos, calcular cobros, generar reportes administrativos y exportar datos en archivos CSV. El proyecto busca automatizar la operación del parqueadero, mejorando la eficiencia y trazabilidad del servicio.
 
 ---
 
