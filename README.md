@@ -17,17 +17,6 @@
 
 ---
 
-## 📋 Funcionalidades Clave
-
-- Registro de usuarios con validaciones detalladas
-- Ingreso y retiro de vehículos
-- Cálculo automático de tarifas
-- Módulo administrador con reportes
-- Exportación de datos a archivo CSV
-- Validación de acceso con contraseña para administrador
-
----
-
 ## 🛠 Tecnologías y Herramientas
 
 - Python 3.11
