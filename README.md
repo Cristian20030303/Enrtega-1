@@ -16,9 +16,3 @@
 | Cristian Murcia | Ingeniería Industrial | Python, manejo de archivos, documentación | Líder del equipo |
 
 ---
-
-## 🛠 Tecnologías y Herramientas
-
-- Python 3.11
-- Librerías estándar: `datetime`, `csv`, `os`
-- Git y GitHub para control de versiones
