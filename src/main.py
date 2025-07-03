@@ -1,14 +1,33 @@
-# Archivo principal del sistema de gestión de parqueadero
-print("Bienvenido al sistema de parqueadero")
-from src.gestion_usuarios import registrar_usuario
-from src.vehiculos import ingresar_vehiculo
-from src.reportes import generar_reporte
+#Registro, ingreso retiro y administrador
+from src.registro import registrar_usuario
+from src.ingreso import ingresar_vehiculo
+from src.retiro import retirar_vehiculo
+from src.administrador import menu_administrador
 
-def main():
-    # Aquí pruebas todo lo que vas desarrollando
-    registrar_usuario()
-    ingresar_vehiculo()
-    generar_reporte()
+def menu():
+    while True:
+        print("\n--- PARQUEADERO EL OLVIDO ---")
+        print("1. Registrar usuario")
+        print("2. Ingresar vehículo")
+        print("3. Retirar vehículo")
+        print("4. Acceder como administrador")
+        print("5. Salir")
+        
+        opcion = input("Seleccione una opción: ")
+        
+        if opcion == '1':
+            registrar_usuario()
+        elif opcion == '2':
+            ingresar_vehiculo()
+        elif opcion == '3':
+            retirar_vehiculo()
+        elif opcion == '4':
+            menu_administrador()
+        elif opcion == '5':
+            print("Gracias por usar el sistema.")
+            break
+        else:
+            print("Opción inválida.")
 
 if __name__ == "__main__":
-    main()
+    menu()
