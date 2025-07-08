@@ -1,9 +1,11 @@
-#Registro, ingreso retiro y administrador
+# main.py
+
 from src.registro import registrar_usuario
 from src.ingreso import ingresar_vehiculo
 from src.retiro import retirar_vehiculo
 from src.administrador import menu_administrador
 
+# Definimos el menu
 def menu():
     while True:
         print("\n--- PARQUEADERO EL OLVIDO ---")
