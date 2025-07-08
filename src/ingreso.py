@@ -1,39 +1,39 @@
-# src/ingreso.py
-
-# src/ingreso.py
-
+# Ingreso
+# Importamos librerias y archivos
 import csv
 import datetime
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-# Importar funciones de utils/
+# Importamos funciones de utils alojadas en helpers.py y validaciones.py
 from utils.helpers import obtener_id_usuario, limpiar_pantalla, obtener_tiempo_actual, contar_vehiculos_activos  
 from utils.validaciones import validar_cedula, validar_placa
 
-# --- Definición de Rutas de Archivo (Robustas) ---
+# Rutas a los archivos CSV
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent 
 DATA_DIR = project_root / "data" 
 
 RUTA_PARQUEO = DATA_DIR / "parqueo.csv"
 RUTA_USUARIOS = DATA_DIR / "usuarios.csv" 
-# --- Fin Definición de Rutas ---
 
-CAPACIDAD_MAXIMA_PARQUEADERO = 50 # Definir la capacidad máxima
+# Definimos la capacidad maxima del parqueadero
+CAPACIDAD_MAXIMA_PARQUEADERO = 50
+
+# Definimos la accion a realizar
 def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = None, 
                        placa_existente: str = None, tipo_vehiculo_existente: str = None):
     limpiar_pantalla() 
     print("\n--- INGRESO DE VEHÍCULO ---")
     
-    # Asignar los valores de los argumentos opcionales o None
+    # Asignamos los valores de los argumentos
     id_usuario = id_usuario_existente
     cedula = cedula_existente
     placa = placa_existente
     tipo_vehiculo = tipo_vehiculo_existente
 
-    # Si no se proporcionó id_usuario, pedimos la cédula
+    # Pedimos la cédula para el ingreso del usuario, al no pedirse id
     if id_usuario is None:
         while True:
             cedula = input("Ingrese la cédula del usuario: ").strip() 
@@ -41,7 +41,7 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
                 print("Cédula inválida. Por favor, ingrese una cédula numérica y con longitud válida.")
                 input("Presione Enter para continuar...") 
                 limpiar_pantalla()
-                print("\n--- INGRESO DE VEHÍCULO ---") # Volver a imprimir el encabezado
+                print("\n--- INGRESO DE VEHÍCULO ---") # Volvemos a imprimir el encabezado
             else:
                 # 1. Obtener ID de usuario (y verificar si está registrado)
                 id_usuario = obtener_id_usuario(cedula, RUTA_USUARIOS)
@@ -54,10 +54,8 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
                     break # Salir del bucle de cédula
     else:
         print(f"Usando ID de usuario: {id_usuario} (proporcionado desde el registro).")
-        # No necesitamos la cédula si ya tenemos el id_usuario en este flujo específico,
-        # pero se mantiene para coherencia si la función se llama directamente sin id_usuario_existente.
 
-    # Si no se proporcionó placa, pedimos la placa
+    # Pedimos la placa
     if RUTA_PARQUEO.exists() and RUTA_PARQUEO.stat().st_size > 0:
         try:
             df_parqueo = pd.read_csv(RUTA_PARQUEO)
@@ -85,21 +83,19 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
             else:
                 break
     
-    # Si no se proporcionó tipo_vehiculo, pedimos el tipo
-    # (Adaptado de tu código para solo 'carro', pero mantiene la estructura flexible)
+    # Pedimos el tipo de vehiculo aunque solo se admitan tipo carros pero es necesario especificar
     if tipo_vehiculo is None:
         tipo_vehiculo = input("Ingrese el tipo de vehículo (solo 'carro' permitido): ").lower().strip()
         if tipo_vehiculo != "carro": 
             print("ERROR: Este parqueadero es exclusivo para 'carros'.")
             input("Presione Enter para continuar...") 
             return
-    elif tipo_vehiculo != "carro": # Si fue proporcionado, pero no es 'carro'
+    elif tipo_vehiculo != "carro": # Si el tipo de vehiculo es distinto a 'carro'
         print(f"ADVERTENCIA: Tipo de vehículo '{tipo_vehiculo}' no permitido. Este parqueadero es exclusivo para 'carros'.")
         input("Presione Enter para continuar...") 
         return
 
-    # Verificar si el vehículo ya está estacionado
-    # Un vehículo está "estacionado" si su placa existe en RUTA_PARQUEO Y su 'hora_salida' es nula.
+    # Verificamos si no hay otro vehiculo estacionado por parte del mismo usuario
     if RUTA_PARQUEO.exists() and RUTA_PARQUEO.stat().st_size > 0:
         df_parqueo = pd.read_csv(RUTA_PARQUEO)
         
@@ -109,7 +105,7 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
             input("Presione Enter para continuar...")
             return
 
-    # Verificar capacidad del parqueadero
+    # Verificamos capacidad del parqueadero al completar el ingreso
     vehiculos_actuales = contar_vehiculos_activos(RUTA_PARQUEO)
     if vehiculos_actuales >= CAPACIDAD_MAXIMA_PARQUEADERO:
         print(f"ERROR: El parqueadero está lleno. Capacidad máxima: {CAPACIDAD_MAXIMA_PARQUEADERO}.")
@@ -119,10 +115,9 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
         print(f"Espacios disponibles: {CAPACIDAD_MAXIMA_PARQUEADERO - vehiculos_actuales}")
 
 
-    # --- INICIO DEL BLOQUE DE CÓDIGO QUE PREGUNTASTE ---
-    # Este bloque va aquí, DESPUÉS de todas las validaciones.
-    # Crear el registro del nuevo ingreso
-    hora_ingreso = obtener_tiempo_actual() # Usamos la función de helpers
+    
+    # Creamos el registro del nuevo ingreso
+    hora_ingreso = obtener_tiempo_actual() 
 
     nuevo_ingreso = {
         'placa': placa,
@@ -138,7 +133,7 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
         file_exists = RUTA_PARQUEO.exists() and RUTA_PARQUEO.stat().st_size > 0
         
         with open(RUTA_PARQUEO, mode='a', newline='', encoding='utf-8') as file:
-            # Usar DictWriter es preferible para mantener el orden y nombres de columnas consistentes
+            # Utilizamos DictWriter para mantener el orden y nombres de columnas consistentes
             fieldnames = ['placa', 'tipo_vehiculo', 'id_usuario', 'hora_ingreso', 'hora_salida', 'valor_pagado']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
 
@@ -151,4 +146,3 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
         print(f"Error al guardar el ingreso del vehículo: {e}")
     
     input("Presione Enter para continuar...")
-    # --- FIN DEL BLOQUE DE CÓDIGO QUE PREGUNTASTE ---
