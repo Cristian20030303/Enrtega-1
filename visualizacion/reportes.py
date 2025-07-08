@@ -1,24 +1,21 @@
+# Reportes.py
 
 
-
-
+# Importamos lo necesario
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 from pathlib import Path
 
-# --- Configuración de Rutas de Datos (Robustas) ---
+# Rutas a los archivos de datos
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent
 DATA_DIR = project_root / "data"
-# --- Fin Configuración de Rutas ---
+
 
 def _load_csv_or_handle_error(file_path: Path, df_name: str) -> pd.DataFrame | None:
     """Función auxiliar para cargar CSVs con manejo de errores."""
     try:
-        # Asegurarse de que el archivo no esté vacío (solo encabezados) antes de intentar leer
-        # pd.read_csv con pd.errors.EmptyDataError ya maneja archivos con 0 bytes,
-        # pero esto añade una capa extra para archivos con solo encabezados.
         if file_path.exists() and file_path.stat().st_size == 0:
             print(f"INFO: El archivo '{file_path.name}' está vacío. No hay datos para el {df_name}.")
             return None
@@ -45,7 +42,7 @@ def reporte_vehiculos_activos():
     if df.empty:
         print("No hay vehículos estacionados actualmente.")
     else:
-        # Mostrar solo columnas relevantes para el usuario
+        # Se muestra solo columnas relevantes para el usuario
         if all(col in df.columns for col in ['placa', 'tipo_vehiculo', 'hora_ingreso', 'id_usuario']):
             print(df[['placa', 'tipo_vehiculo', 'id_usuario', 'hora_ingreso']].to_string(index=False))
         else:
@@ -68,7 +65,7 @@ def reporte_uso_frecuente():
         if conteo.empty:
             print("No hay registros de uso frecuentes para mostrar.")
         else:
-            print(conteo.to_string(header=False)) # conteo ya tiene un nombre, no necesita cabecera extra
+            print(conteo.to_string(header=False))
     except KeyError as e:
         print(f"ERROR: La columna 'placa' no se encontró en el historial para el reporte de uso frecuente: {e}")
     except Exception as e:
@@ -111,8 +108,8 @@ def grafico_interactivo_tiempos_estadia():
         return
 
     try:
-        # Verificar columnas antes de la conversión a datetime
-        required_cols = ['hora_ingreso', 'hora_salida', 'placa'] # 'placa' para el hover
+        # Verificamo columnas antes de la conversión a datetime
+        required_cols = ['hora_ingreso', 'hora_salida', 'placa']
         if not all(col in df.columns for col in required_cols):
             print(f"No hay datos suficientes o faltan columnas de tiempo ({', '.join(required_cols)}) para el gráfico de estadía.")
             return
@@ -121,7 +118,7 @@ def grafico_interactivo_tiempos_estadia():
         df["hora_salida"] = pd.to_datetime(df["hora_salida"])
         
         # Filtro para asegurar que hora_salida sea siempre posterior o igual a hora_ingreso
-        df = df[df["hora_salida"] >= df["hora_ingreso"]].copy() # Usar .copy() para evitar SettingWithCopyWarning
+        df = df[df["hora_salida"] >= df["hora_ingreso"]].copy() 
 
         # Calcular tiempo de estadía en horas para el histograma
         df["tiempo_estadia_horas"] = (df["hora_salida"] - df["hora_ingreso"]).dt.total_seconds() / 3600
@@ -156,9 +153,9 @@ def reporte_ingresos_totales():
             print("No hay datos suficientes o la columna 'valor_pagado' no existe para el reporte de ingresos totales.")
             return
 
-        # Convertir 'valor_pagado' a tipo numérico, manejando posibles errores
+        # Convertimos el 'valor_pagado' a tipo numérico, manejando posibles errores
         df['valor_pagado'] = pd.to_numeric(df['valor_pagado'], errors='coerce')
-        # Eliminar filas donde la conversión a numérico falló (quedaron como NaN)
+        # Eliminamos filas donde la conversión a numérico falló
         df.dropna(subset=['valor_pagado'], inplace=True)
 
         if df.empty:
@@ -167,13 +164,9 @@ def reporte_ingresos_totales():
 
         ingresos_totales = df['valor_pagado'].sum()
         print("\n--- Reporte de Ingresos Totales ---")
-        print(f"Ingresos totales generados: ${ingresos_totales:,.2f}") # Formatear como moneda
+        print(f"Ingresos totales generados: ${ingresos_totales:,.2f}") # Formatemos como moneda
 
-        # Opcional: Ingresos por tipo de vehículo (aunque para "solo carro" será un solo total)
-        # ingresos_por_tipo = df.groupby('tipo_vehiculo')['valor_pagado'].sum()
-        # if not ingresos_por_tipo.empty:
-        #     print("\nIngresos por Tipo de Vehículo:")
-        #     print(ingresos_por_tipo.to_string(header=False))
+
 
     except KeyError as e:
         print(f"ERROR: La columna 'valor_pagado' no se encontró en el historial para el reporte de ingresos totales: {e}")
@@ -190,9 +183,9 @@ def reporte_usuarios_registrados():
     if df.empty:
         print("No hay usuarios registrados actualmente.")
     else:
-        # Mostrar solo las columnas relevantes del usuario
+        # Mostramos solo las columnas relevantes del usuario
         if all(col in df.columns for col in ['id', 'nombre', 'cedula', 'telefono', 'correo']):
             print(df[['id', 'nombre', 'cedula', 'telefono', 'correo']].to_string(index=False))
         else:
             print("Advertencia: Algunas columnas esperadas (id, nombre, cedula, telefono, correo) no se encontraron en usuarios.csv.")
-            print(df.to_string(index=False)) # Imprime todo lo que tenga
+            print(df.to_string(index=False)) # Imprimimos todo lo que tenga
