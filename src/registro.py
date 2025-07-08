@@ -1,20 +1,18 @@
 # Registro del usuario
 
-# src/registro.py
-
 import csv
 from pathlib import Path
 import sys 
 
-# Importar funciones de utils/
+# Importar funciones de utils alojadas en las en validaciones.py y helpers.oy
 from utils.validaciones import validar_cedula, validar_correo_udea
 from utils.helpers import usuario_registrado, generar_id_unico, limpiar_pantalla 
 
-# --- Configuración de Rutas de Datos (Robustas) ---
+# Rutas a los archivos csv
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent 
 DATA_DIR = project_root / "data"
-# --- Fin Configuración de Rutas ---
+
 
 def registrar_usuario():
     limpiar_pantalla()
@@ -45,11 +43,10 @@ def registrar_usuario():
             print("Correo inválido. Por favor, ingrese un correo que termine en @udea.edu.co")
 
     nuevo_id_usuario = generar_id_unico(users_file_path)
-    # ESTA ES LA NUEVA VERIFICACIÓN
+    
     if nuevo_id_usuario is None:
         input("Presione Enter para continuar...")
-        return None, None, None # O el valor apropiado para indicar fallo en tu función
-                            # (ajusta si tu función registrar_usuario devuelve algo diferente)
+        return None, None, None 
 
 
     nuevo_usuario = {
