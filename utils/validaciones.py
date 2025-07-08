@@ -1,4 +1,5 @@
-import re # ¡IMPORTANTE: Añadir esta línea!
+import re # Aquí usamos 're' para validar formatos específicos de texto, como la placa
+# del carro o la cédula del usuario
 
 def validar_placa(placa: str) -> bool:
     """
@@ -9,9 +10,9 @@ def validar_placa(placa: str) -> bool:
     # ^      : Inicio de la cadena
     # [A-Z]{3}: Exactamente 3 letras mayúsculas (A-Z)
     # \d{3}  : Exactamente 3 dígitos (0-9)
-    # $      : Fin de la cadena
+    # Lo utilizamos para que tome 3 letras y 3 numeros unica y exclusivamente especificando que es un carro
     pattern = r'^[A-Z]{3}\d{3}$'
-    return re.fullmatch(pattern, placa.upper()) is not None # Convertir a mayúsculas antes de validar
+    return re.fullmatch(pattern, placa.upper()) is not None # Convertimos a mayúsculas antes de validar
 
 def validar_cedula(cedula: str) -> bool:
     """
@@ -24,7 +25,7 @@ def validar_cedula(cedula: str) -> bool:
     if not isinstance(cedula, str):
         return False
     
-    # Normalizar la cédula (quitar espacios) antes de validar
+    # Normalizamos la cédula quitando espacios antes de validar
     cedula_normalizada = cedula.strip()
     
     # isdigit() verifica que sean solo dígitos, y luego se revisa la longitud.
@@ -42,7 +43,7 @@ def validar_opcion(opcion: str, opciones_validas: list[str]) -> bool:
     if not isinstance(opcion, str):
         return False
     
-    # Normalizar la opción (quitar espacios) antes de comparar
+    # Normalizamos la opción quitando espacios antes de comparar
     opcion_normalizada = opcion.strip()
     
     return opcion_normalizada in opciones_validas
@@ -51,12 +52,10 @@ def validar_correo_udea(correo: str) -> bool:
     Valida que el correo electrónico tenga el formato correcto y termine en @udea.edu.co.
     Permite cualquier carácter (excepto espacio o @) en la parte del nombre de usuario.
     """
-    # Nueva expresión regular más permisiva para la parte del usuario
-    # [^\s@]+ : Coincide con uno o más caracteres que NO sean un espacio en blanco (\s) o un arroba (@).
-    # @udea\.edu\.co$: El dominio sigue siendo estricto y escapado.
+    # permite el registro de correos unica y exclusivamente para correos universitarios de la udea con todo tipo de signos
     pattern = r"^[^\s@]+@udea\.edu\.co$"
     
     print(f"DEBUG - Validando correo: '{correo}' con patrón: '{pattern}'")
-    match = re.fullmatch(pattern, correo) # re.UNICODE ya no es tan crítico aquí si permitimos casi todo
+    match = re.fullmatch(pattern, correo) 
     print(f"DEBUG - Resultado del match: {match}")
     return match is not None
