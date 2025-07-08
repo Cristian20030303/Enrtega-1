@@ -1,14 +1,9 @@
 # Perfil de administrador
 
-# src/administrador.py
-# No es necesario importar sys ni Path aquí si main.py ya añadió la raíz del proyecto al sys.path
-# Si este archivo se ejecutara de forma independiente, sí los necesitaría.
-
-# Importar funciones desde la carpeta 'visualizacion'
-# Ajustamos los nombres de las funciones a los que realmente existen en reportes.py
+# Importamos funciones desde visualizacion del archivo que existe en reportes.py
 from visualizacion.reportes import reporte_uso_frecuente, reporte_ingresos_totales, reporte_vehiculos_activos, grafico_vehiculos_por_tipo, grafico_interactivo_tiempos_estadia, reporte_usuarios_registrados
 
-# Importar funciones de utils/
+# Importamos funciones de utils que existen de los archivos helpers.py y validaciones.py
 from utils.helpers import limpiar_pantalla 
 from utils.validaciones import validar_opcion 
 
