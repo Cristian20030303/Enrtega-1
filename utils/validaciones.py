@@ -52,7 +52,7 @@ def validar_correo_udea(correo: str) -> bool:
     Valida que el correo electrónico tenga el formato correcto y termine en @udea.edu.co.
     Permite cualquier carácter (excepto espacio o @) en la parte del nombre de usuario.
     """
-    # permite el registro de correos unica y exclusivamente para correos universitarios de la udea con todo tipo de signos
+    # Permite el registro de correos unica y exclusivamente para correos universitarios de la udea con todo tipo de signos
     pattern = r"^[^\s@]+@udea\.edu\.co$"
     
     print(f"DEBUG - Validando correo: '{correo}' con patrón: '{pattern}'")
