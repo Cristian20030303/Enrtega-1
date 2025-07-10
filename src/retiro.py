@@ -5,21 +5,20 @@ import datetime
 from pathlib import Path
 import pandas as pd
 
-# Importamos funciones de otros módulos
+# Importar funciones de otros módulos
 from utils.tarifas import calcular_tarifa
 from utils.helpers import limpiar_pantalla, obtener_tiempo_actual, \
     calcular_diferencia_minutos, calcular_costo_total
-from utils.validaciones import validar_placa # Para validar el formato de la placa
+from utils.validaciones import validar_placa # Añadido: Para validar el formato de la placa
 
-# Rutas a los archivos csv
+# --- Definición de Rutas de Archivo (Robustas) ---
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent
 RUTA_PARQUEO = project_root / "data" / "parqueo.csv"
 RUTA_HISTORIAL = project_root / "data" / "historial.csv"
-
-
-# Tarifa por minuto
-TARIFA_POR_MINUTO = 80.0
+# --- Fin Definición de Rutas ---
+# Tarifa por minuto (puedes ajustarla)
+TARIFA_POR_MINUTO = 116.6666
 
 def retirar_vehiculo():
     limpiar_pantalla()
@@ -35,10 +34,11 @@ def retirar_vehiculo():
     try:
         df_parqueo = pd.read_csv(RUTA_PARQUEO)
         
-        # Filtramos con la placa del vehiculo y retiramos si esta activa
+        # Filtrar solo la fila del vehículo con la placa y que esté activo (hora_salida vacía)
+        # Esto es importante: solo queremos retirar vehículos que *actualmente* estén registrados.
         vehiculo_para_retirar_df = df_parqueo[
             (df_parqueo['placa'] == placa_a_retirar) & 
-            (df_parqueo['hora_salida'].isnull()) # Esta asegura que no se ha retirado
+            (df_parqueo['hora_salida'].isnull()) # Asegura que aún no se ha retirado
         ]
 
         if vehiculo_para_retirar_df.empty:
@@ -46,12 +46,13 @@ def retirar_vehiculo():
             input("Presione Enter para continuar...")
             return
         
-        
+        # Obtener la fila como una Serie de Pandas (o un diccionario si lo prefieres)
+        # .iloc[0] para obtener la primera (y única) fila encontrada
         vehiculo_info = vehiculo_para_retirar_df.iloc[0] 
         
-        # Extraemos los datos necesarios para el historial y los cálculos
+        # Extraer los datos necesarios para el historial y los cálculos
         hora_ingreso_str = vehiculo_info['hora_ingreso']
-        hora_salida_str = obtener_tiempo_actual() # Obtenemos la hora actual del sistema
+        hora_salida_str = obtener_tiempo_actual() # Obtener la hora actual del sistema
 
         print(f"DEBUG: Hora de ingreso (string desde CSV): '{hora_ingreso_str}'")
         print(f"DEBUG: Hora de salida (string actual): '{hora_salida_str}'")
@@ -64,21 +65,21 @@ def retirar_vehiculo():
             input("Presione Enter para continuar...")
             return
 
-        # Calculamos costo total
-        costo_total = calcular_costo_total(tiempo_estadia_minutos, TARIFA_POR_MINUTO)
+        # Calcular costo total
+        costo_total = calcular_costo_total(tiempo_estadia_minutos)
 
-        
-        # Preparamos el registro completo para historial.csv
+        # --- LÓGICA PARA HISTORIAL.CSV ---
+        # Preparar el registro completo para historial.csv
         registro_historial = {
             'placa': vehiculo_info['placa'],
             'tipo_vehiculo': vehiculo_info['tipo_vehiculo'],
             'id_usuario': vehiculo_info['id_usuario'],
             'hora_ingreso': hora_ingreso_str,
             'hora_salida': hora_salida_str,
-            'valor_pagado': costo_total 
+            'valor_pagado': costo_total # Usar el nombre de columna de tu historial.csv
         }
 
-        # Guardamos el registro en historial.csv
+        # Guardar el registro en historial.csv
         file_exists_historial = RUTA_HISTORIAL.exists() and RUTA_HISTORIAL.stat().st_size > 0
         
         with open(RUTA_HISTORIAL, mode='a', newline='', encoding='utf-8') as file:
@@ -91,11 +92,12 @@ def retirar_vehiculo():
             writer_historial.writerow(registro_historial)
         print(f"Registro de retiro añadido a {RUTA_HISTORIAL.name}.")
 
-        
-        # Creamos un nuevo DataFrame que excluya la fila del vehículo retirado
-        df_parqueo_actualizado = df_parqueo.drop(vehiculo_info.name) 
+        # --- LÓGICA PARA ELIMINAR DE PARQUEO.CSV (Vehículos Activos) ---
+        # Crear un nuevo DataFrame que excluya la fila del vehículo retirado
+        df_parqueo_actualizado = df_parqueo.drop(vehiculo_info.name) # .name es el índice de la fila en el df original
 
-        # Guardamos el DF actualizado en parqueo.csv
+        # Guardar el DataFrame actualizado (sin el vehículo retirado) de nuevo en parqueo.csv
+        # Si df_parqueo_actualizado está vacío, to_csv creará un archivo solo con encabezados.
         df_parqueo_actualizado.to_csv(RUTA_PARQUEO, index=False, quoting=csv.QUOTE_NONNUMERIC) 
 
         print(f"Vehículo '{placa_a_retirar}' retirado exitosamente del parqueadero activo.")
