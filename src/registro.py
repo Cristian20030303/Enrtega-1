@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 import sys 
 
-# Importar funciones de utils/
+# Importamos las funciones de la carpeta utils
 from utils.validaciones import validar_cedula, validar_correo_udea, validar_nombre_o_apellido
 from utils.helpers import usuario_registrado, generar_id_unico, limpiar_pantalla 
 
@@ -13,7 +13,7 @@ current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent 
 DATA_DIR = project_root / "data"
 
-
+# Definimos la funcion que va a realizar
 def registrar_usuario():
     limpiar_pantalla()
     print("\n--- REGISTRAR NUEVO USUARIO ---")
@@ -21,17 +21,12 @@ def registrar_usuario():
     users_file_path = DATA_DIR / "usuarios.csv" 
     while True:
         nombre = input("Ingrese el nombre completo del usuario (mínimo 6 letras): ").strip()
-        # Llamar a la nueva función de validación
         if validar_nombre_o_apellido(nombre, min_longitud=6): # Establecemos el mínimo de 6 letras
             break # El nombre es válido, salimos del bucle
         else:
             print("Nombre inválido. Debe contener al menos 6 letras y solo caracteres alfabéticos, espacios o guiones.")
             input("Presione Enter para continuar...")
-            # Aquí podrías llamar a limpiar_pantalla() y volver a imprimir el encabezado si lo deseas,
-            # similar a como lo haces con la cédula.
-            # limpiar_pantalla()
-            # print("\n--- REGISTRAR NUEVO USUARIO ---")
-
+           
     while True:
         cedula = input("Ingrese la cédula del usuario (solo números): ").strip()
         if validar_cedula(cedula):
@@ -48,15 +43,13 @@ def registrar_usuario():
     telefono = input("Ingrese el teléfono del usuario (opcional): ").strip()
     while True:
         correo = input("Ingrese el correo electrónico del usuario (@udea.edu.co): ").strip()
-        # Aquí se llama a la función de validación
-        if validar_correo_udea(correo): 
+        if validar_correo_udea(correo): # Funcion de validar correo
             break # El correo es válido, salimos del bucle
         else:
             print("Correo inválido. Por favor, ingrese un correo que termine en @udea.edu.co")
 
     nuevo_id_usuario = generar_id_unico(users_file_path)
-    # ESTA ES LA NUEVA VERIFICACIÓN
-    if nuevo_id_usuario is None: # Aunque con la nueva implementación en helpers, esto debería ser raro.
+    if nuevo_id_usuario is None:
         print("ERROR: No se pudo generar un ID único para el usuario.")
         input("Presione Enter para continuar...")
         return 
