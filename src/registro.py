@@ -29,7 +29,7 @@ def registrar_usuario():
                 return 
             break 
         else:
-            print("Cédula inválida. Debe ser numérica y tener entre 6 y 10 dígitos.")
+            print("Cédula inválida. Debe ser numérica y tener entre 3 y 15 dígitos.")
             input("Presione Enter para continuar...")
 
     nombre = input("Ingrese el nombre completo del usuario: ").strip()
