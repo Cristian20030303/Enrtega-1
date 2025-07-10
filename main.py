@@ -4,7 +4,7 @@
 import sys
 from pathlib import Path
 
-# Manejos de rutas de archivos
+# Manejo de rutas de archivos
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent 
 
@@ -13,14 +13,14 @@ if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
 
-# Importamos funciones de los módulos usando su notación de paquete
+# Importamos funciones de los módulos
 try:
     from src.registro import registrar_usuario
     from src.ingreso import ingresar_vehiculo
     from src.retiro import retirar_vehiculo
     from src.administrador import menu_administrador
     
-    # Importaciones de utils/ y validaciones/
+    # Importaciones de las carpetas utils y validaciones
     from utils.helpers import limpiar_pantalla 
     from utils.validaciones import validar_opcion 
 
