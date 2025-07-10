@@ -1,18 +1,16 @@
-#helpers.py
-
-#importamos lo necesario
 import csv
 from datetime import datetime, timedelta
 from pathlib import Path
 import os
 import pandas as pd
+import math
 
-# Definimos todas las funciones que necesitaremos a lo largo del codigo para que funcione
-# Define hota y fecha actual
+# --- Funciones Generales ---
+
 def obtener_tiempo_actual():
     """Devuelve la fecha y hora actual formateada como 'YYYY-MM-DD HH:MM:SS'."""
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-# Para diferentes sistemas operativos
+
 def limpiar_pantalla():
     """Limpia la consola."""
     # Para Windows
@@ -22,7 +20,6 @@ def limpiar_pantalla():
     else:
         _ = os.system('clear')
 
-# Calcula la diferencia en minutos desde el acceso
 def calcular_diferencia_minutos(inicio: str, fin: str) -> int | None:
     """
     Calcula la diferencia en minutos entre dos timestamps en formato 'YYYY-MM-DD HH:MM:SS'.
@@ -40,16 +37,51 @@ def calcular_diferencia_minutos(inicio: str, fin: str) -> int | None:
         print(f"[ERROR] (calcular_diferencia_minutos) Ocurrió un error inesperado: {e}")
         return None
 
-# Define y calcula el costo total del parqueo
-def calcular_costo_total(tiempo_minutos: int, tarifa_por_minuto: float = 100.0) -> float:
+def calcular_costo_total(tiempo_minutos: int) -> float: # Eliminamos 'tarifa_por_minuto' como parámetro
     """
-    Calcula el costo total del parqueo basado en el tiempo en minutos y una tarifa.
-    """
-    if tiempo_minutos < 0:
-        return 0.0 # No cobrar si el tiempo es negativo
-    return tiempo_minutos * tarifa_por_minuto
+    Calcula el costo total del parqueo basado en el tiempo en minutos y las reglas de cobro.
 
-# Acceso a usuarios.cvs
+    Reglas de cobro:
+    - $7.000 por hora completa.
+    - $1.500 por cada cuarto de hora adicional.
+    - El pago mínimo es de $7.000.
+    """
+    # Definición de tarifas fijas según tus requisitos
+    VALOR_HORA_COMPLETA = 7000.0
+    VALOR_CUARTO_HORA = 1500.0
+    
+    # Manejo de casos de tiempo negativo o cero
+    if tiempo_minutos <= 0:
+        return VALOR_HORA_COMPLETA # Siempre se cobra el mínimo si no hubo tiempo o es negativo
+
+    # Convertir tiempo en minutos a horas y minutos para el cálculo
+    horas_totales_flotante = tiempo_minutos / 60.0
+    
+    # Calcular horas enteras parqueadas (ej. 1.5 horas -> 1 hora entera)
+    horas_enteras = math.floor(horas_totales_flotante)
+    
+    # Calcular minutos restantes después de las horas enteras (ej. 1.5 horas -> 0.5 horas * 60 = 30 minutos)
+    minutos_restantes = tiempo_minutos % 60
+    
+    # Calcular cuartos de hora a partir de los minutos restantes
+    # math.ceil asegura que incluso 1 minuto adicional se redondea a 1 cuarto de hora
+    cuartos_de_hora = math.ceil(minutos_restantes / 15)
+    
+    # Calcular el cobro basado en horas enteras
+    cobro_por_horas = horas_enteras * VALOR_HORA_COMPLETA
+    
+    # Calcular el cobro basado en cuartos de hora
+    cobro_por_cuartos = cuartos_de_hora * VALOR_CUARTO_HORA
+    
+    # Sumar ambos cobros
+    costo_calculado = cobro_por_horas + cobro_por_cuartos
+    
+    # Aplicar la condición de pago mínimo
+    if costo_calculado < VALOR_HORA_COMPLETA:
+        return VALOR_HORA_COMPLETA # Si el cálculo es menor a $7.000, se cobra $7.000
+    else:
+        return costo_calculado
+# --- Funciones de Acceso a Datos (usuarios.csv) ---
 
 def usuario_registrado(cedula: str, users_file_path: Path) -> bool:
     """
@@ -118,7 +150,6 @@ def obtener_id_usuario(cedula: str, users_file_path: Path) -> int | None:
         print(f"[ERROR] (helpers.obtener_id_usuario) Ocurrió un error al obtener ID de usuario: {e}")
         return None
 
-# Le otorga al usuario un id unico de 1 a 50 ya como limite del parqueadero
 def generar_id_unico(users_file_path: Path) -> int | None:
     """
     Genera un ID único para un nuevo usuario, limitado a un máximo de 50 IDs.
@@ -150,8 +181,8 @@ def generar_id_unico(users_file_path: Path) -> int | None:
 
     print(f"ERROR: No se encontró un ID único disponible entre 1 y {MAX_USERS}.")
     return None
-# Acceso a parqueo.csv
-# Cuenta la cantidad de vehiculos actualmente en el parqueadero
+# --- Funciones de Acceso a Datos (parqueo.csv) ---
+
 def contar_vehiculos_activos(parqueo_file_path: Path) -> int:
     """
     Cuenta el número de vehículos actualmente estacionados en el parqueadero.
@@ -161,19 +192,19 @@ def contar_vehiculos_activos(parqueo_file_path: Path) -> int:
         if not parqueo_file_path.exists() or parqueo_file_path.stat().st_size == 0:
             return 0 
 
-        
+        # Mejor usar pandas para esto si ya lo importas
         try:
             df = pd.read_csv(parqueo_file_path)
             if 'hora_salida' in df.columns:
                 activos = df['hora_salida'].isnull().sum() 
             else:
-               
+                # Si no hay columna hora_salida, el conteo de activos es el total de entradas.
                 activos = len(df)
         except pd.errors.EmptyDataError:
-            return 0 
+            return 0 # Archivo CSV existe pero está vacío
         except Exception as pd_e:
             print(f"Error con pandas al contar vehículos activos: {pd_e}. Intentando con csv.DictReader.")
-            
+            # Fallback a csv.DictReader si pandas falla inesperadamente
             with open(parqueo_file_path, mode='r', newline='', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 if reader.fieldnames and 'hora_salida' in reader.fieldnames:
