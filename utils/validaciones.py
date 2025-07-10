@@ -16,7 +16,7 @@ def validar_placa(placa: str) -> bool:
 
 def validar_cedula(cedula: str) -> bool:
     """
-    Verifica que la cédula sea numérica y tenga una longitud razonable (6 a 10 dígitos).
+    Verifica que la cédula sea numérica y tenga una longitud razonable (3 a 15 dígitos).
     Args:
         cedula (str): La cadena de la cédula a validar.
     Returns:
@@ -29,7 +29,7 @@ def validar_cedula(cedula: str) -> bool:
     cedula_normalizada = cedula.strip()
     
     # isdigit() verifica que sean solo dígitos, y luego se revisa la longitud.
-    return cedula_normalizada.isdigit() and 6 <= len(cedula_normalizada) <= 10
+    return cedula_normalizada.isdigit() and 3 <= len(cedula_normalizada) <= 15
 
 def validar_opcion(opcion: str, opciones_validas: list[str]) -> bool:
     """
