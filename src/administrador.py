@@ -1,20 +1,16 @@
 # Perfil de administrador
 
-# src/administrador.py
-# No es necesario importar sys ni Path aquí si main.py ya añadió la raíz del proyecto al sys.path
-# Si este archivo se ejecutara de forma independiente, sí los necesitaría.
-
-# Importar funciones desde la carpeta 'visualizacion'
-# Ajustamos los nombres de las funciones a los que realmente existen en reportes.py
+# Importar funciones desde la carpeta visualizacion
 from visualizacion.reportes import reporte_uso_frecuente, reporte_ingresos_totales, reporte_vehiculos_activos, reporte_total_vehiculos_registrados, grafico_interactivo_tiempos_estadia, reporte_usuarios_registrados, reporte_total_vehiculos_retirados, reporte_tiempo_promedio_estadia, reporte_tiempo_estadia_min_max, reporte_ocupacion_parqueadero
 
-# Importar funciones de utils/
+# Importar funciones de la carpeta de utils
 from utils.helpers import limpiar_pantalla 
 from utils.validaciones import validar_opcion 
 
+# Definimos nuestro Menú Administrador
 def menu_administrador():
     opciones_validas = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"] 
-
+# Definimos cada funcion que va a cumplir cada número
     while True:
         limpiar_pantalla()
         print("\n--- MENÚ ADMINISTRADOR ---")
@@ -54,7 +50,7 @@ def menu_administrador():
                 reporte_tiempo_estadia_min_max()
             elif opcion == "10":
                 reporte_ocupacion_parqueadero()
-            elif opcion == "11": # La opción de salida
+            elif opcion == "11": # Opción de salida
                 break
         else:
             print("Opción inválida. Por favor, intente de nuevo.")
