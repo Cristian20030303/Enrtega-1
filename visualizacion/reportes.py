@@ -4,18 +4,15 @@ import plotly.express as px
 from pathlib import Path
 from datetime import timedelta
 
-# --- Configuración de Rutas de Datos (Robustas) ---
+# Definimos las rutas a los archivos
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent
 DATA_DIR = project_root / "data"
-# --- Fin Configuración de Rutas ---
+
 
 def _load_csv_or_handle_error(file_path: Path, df_name: str) -> pd.DataFrame | None:
     """Función auxiliar para cargar CSVs con manejo de errores."""
     try:
-        # Asegurarse de que el archivo no esté vacío (solo encabezados) antes de intentar leer
-        # pd.read_csv con pd.errors.EmptyDataError ya maneja archivos con 0 bytes,
-        # pero esto añade una capa extra para archivos con solo encabezados.
         if file_path.exists() and file_path.stat().st_size == 0:
             print(f"INFO: El archivo '{file_path.name}' está vacío. No hay datos para el {df_name}.")
             return None
@@ -42,7 +39,7 @@ def reporte_vehiculos_activos():
     if df.empty:
         print("No hay vehículos estacionados actualmente.")
     else:
-        # Mostrar solo columnas relevantes para el usuario
+        # Mostramos solo columnas relevantes para el usuario
         if all(col in df.columns for col in ['placa', 'tipo_vehiculo', 'hora_ingreso', 'id_usuario']):
             print(df[['placa', 'tipo_vehiculo', 'id_usuario', 'hora_ingreso']].to_string(index=False))
         else:
@@ -65,7 +62,7 @@ def reporte_uso_frecuente():
         if conteo.empty:
             print("No hay registros de uso frecuentes para mostrar.")
         else:
-            print(conteo.to_string(header=False)) # conteo ya tiene un nombre, no necesita cabecera extra
+            print(conteo.to_string(header=False))
     except KeyError as e:
         print(f"ERROR: La columna 'placa' no se encontró en el historial para el reporte de uso frecuente: {e}")
     except Exception as e:
@@ -93,7 +90,7 @@ def grafico_vehiculos_por_tipo():
         plt.xlabel("Tipo de Vehículo")
         plt.ylabel("Cantidad de Registros")
         plt.xticks(rotation=45, ha='right')
-        plt.grid(axis='y', linestyle='--', alpha=0.7) # Añadir rejilla para mejor lectura
+        plt.grid(axis='y', linestyle='--', alpha=0.7) 
         plt.tight_layout()
         plt.show()
     except KeyError as e:
@@ -108,8 +105,8 @@ def grafico_interactivo_tiempos_estadia():
         return
 
     try:
-        # Verificar columnas antes de la conversión a datetime
-        required_cols = ['hora_ingreso', 'hora_salida', 'placa'] # 'placa' para el hover
+        # Verifica columnas antes de la conversión a datetime
+        required_cols = ['hora_ingreso', 'hora_salida', 'placa']
         if not all(col in df.columns for col in required_cols):
             print(f"No hay datos suficientes o faltan columnas de tiempo ({', '.join(required_cols)}) para el gráfico de estadía.")
             return
@@ -120,7 +117,7 @@ def grafico_interactivo_tiempos_estadia():
         # Filtro para asegurar que hora_salida sea siempre posterior o igual a hora_ingreso
         df = df[df["hora_salida"] >= df["hora_ingreso"]].copy() # Usar .copy() para evitar SettingWithCopyWarning
 
-        # Calcular tiempo de estadía en horas para el histograma
+        # Calculamos tiempo de estadía en horas para el histograma
         df["tiempo_estadia_horas"] = (df["hora_salida"] - df["hora_ingreso"]).dt.total_seconds() / 3600
 
         # Si no hay datos después de filtrar, salimos.
@@ -131,7 +128,7 @@ def grafico_interactivo_tiempos_estadia():
         fig = px.histogram(df, x="tiempo_estadia_horas", nbins=20, 
                            title="Histograma de Tiempos de Estadía (Horas)",
                            labels={'tiempo_estadia_horas': 'Tiempo de Estadía (Horas)', 'count': 'Número de Vehículos'},
-                           hover_data=['placa', 'hora_ingreso', 'hora_salida']) # Mostrar más info al pasar el mouse
+                           hover_data=['placa', 'hora_ingreso', 'hora_salida']) # Muestra más info al pasar el mouse
         fig.update_layout(bargap=0.1)
         fig.show()
 
@@ -155,7 +152,7 @@ def reporte_ingresos_totales():
 
         # Convertir 'valor_pagado' a tipo numérico, manejando posibles errores
         df['valor_pagado'] = pd.to_numeric(df['valor_pagado'], errors='coerce')
-        # Eliminar filas donde la conversión a numérico falló (quedaron como NaN)
+        # Elimina filas donde la conversión a numérico falló
         df.dropna(subset=['valor_pagado'], inplace=True)
 
         if df.empty:
@@ -165,12 +162,6 @@ def reporte_ingresos_totales():
         ingresos_totales = df['valor_pagado'].sum()
         print("\n--- Reporte de Ingresos Totales ---")
         print(f"Ingresos totales generados: ${ingresos_totales:,.2f}") # Formatear como moneda
-
-        # Opcional: Ingresos por tipo de vehículo (aunque para "solo carro" será un solo total)
-        # ingresos_por_tipo = df.groupby('tipo_vehiculo')['valor_pagado'].sum()
-        # if not ingresos_por_tipo.empty:
-        #     print("\nIngresos por Tipo de Vehículo:")
-        #     print(ingresos_por_tipo.to_string(header=False))
 
     except KeyError as e:
         print(f"ERROR: La columna 'valor_pagado' no se encontró en el historial para el reporte de ingresos totales: {e}")
@@ -187,7 +178,7 @@ def reporte_usuarios_registrados():
     if df.empty:
         print("No hay usuarios registrados actualmente.")
     else:
-        # Mostrar solo las columnas relevantes del usuario
+        # Muestra solo las columnas relevantes del usuario
         if all(col in df.columns for col in ['id', 'nombre', 'cedula', 'telefono', 'correo']):
             print(df[['id', 'nombre', 'cedula', 'telefono', 'correo']].to_string(index=False))
         else:
@@ -199,7 +190,7 @@ def reporte_total_vehiculos_registrados():
     contando las placas únicas en el historial.
     """
     print("\n--- TOTAL DE VEHÍCULOS REGISTRADOS (HISTÓRICOS) ---")
-    historial_path = DATA_DIR / "historial.csv" # <--- MODIFICACIÓN: Definir la ruta aquí
+    historial_path = DATA_DIR / "historial.csv" 
     df = _load_csv_or_handle_error(historial_path, "reporte de total de vehículos registrados")
     if df is None:
         return
@@ -209,7 +200,7 @@ def reporte_total_vehiculos_registrados():
             print("No hay datos suficientes o la columna 'placa' no existe para el reporte de total de vehículos registrados.")
             return
 
-        # Contar placas únicas en el historial
+        # Cuenta placas únicas en el historial
         total_registrados = df['placa'].nunique()
         
         print(f"Número total de vehículos que han sido registrados en el parqueadero: {total_registrados}")
@@ -225,7 +216,7 @@ def reporte_total_vehiculos_retirados():
     Cada fila en historial.csv representa un retiro completado.
     """
     print("\n--- TOTAL DE VEHÍCULOS RETIRADOS ---")
-    historial_path = DATA_DIR / "historial.csv" # <--- MODIFICACIÓN: Definir la ruta aquí
+    historial_path = DATA_DIR / "historial.csv" 
     df = _load_csv_or_handle_error(historial_path, "reporte de total de vehículos retirados")
     if df is None:
         return
@@ -244,13 +235,13 @@ def reporte_tiempo_promedio_estadia():
     Calcula y muestra el tiempo promedio de estadía por vehículo en el parqueadero.
     """
     print("\n--- TIEMPO PROMEDIO DE ESTADÍA POR VEHÍCULO ---")
-    historial_path = DATA_DIR / "historial.csv" # <--- MODIFICACIÓN: Definir la ruta aquí
+    historial_path = DATA_DIR / "historial.csv" 
     df = _load_csv_or_handle_error(historial_path, "reporte de tiempo promedio de estadía")
     if df is None:
         return
 
     try:
-        # Asegúrate de que 'hora_ingreso' y 'hora_salida' son de tipo datetime
+        # Asegura que 'hora_ingreso' y 'hora_salida' son de tipo datetime
         required_cols = ['hora_ingreso', 'hora_salida']
         if not all(col in df.columns for col in required_cols):
             print(f"No hay datos suficientes o faltan columnas de tiempo ({', '.join(required_cols)}) para calcular el promedio de estadía.")
@@ -259,7 +250,7 @@ def reporte_tiempo_promedio_estadia():
         df['hora_ingreso'] = pd.to_datetime(df['hora_ingreso'], errors='coerce')
         df['hora_salida'] = pd.to_datetime(df['hora_salida'], errors='coerce')
         
-        # Filtrar filas donde la conversión a datetime falló o la salida es anterior a la entrada
+        # Filtra filas donde la conversión a datetime falló o la salida es anterior a la entrada
         df = df.dropna(subset=['hora_ingreso', 'hora_salida'])
         df = df[df['hora_salida'] >= df['hora_ingreso']].copy() # Usar .copy() para evitar SettingWithCopyWarning
         
@@ -275,7 +266,7 @@ def reporte_tiempo_promedio_estadia():
         
         horas = int(tiempo_promedio_minutos // 60)
         minutos = int(tiempo_promedio_minutos % 60)
-        segundos = int((tiempo_promedio_minutos * 60) % 60) # Opcional: para más precisión si es necesario
+        segundos = int((tiempo_promedio_minutos * 60) % 60)
 
         print(f"Tiempo promedio de estadía por vehículo: {horas} horas, {minutos} minutos y {segundos} segundos.")
 
@@ -289,7 +280,7 @@ def reporte_tiempo_estadia_min_max():
     Muestra el vehículo con el tiempo de parqueo máximo y mínimo registrado en el historial.
     """
     print("\n--- VEHÍCULO CON TIEMPO DE PARQUEO MÁXIMO Y MÍNIMO ---")
-    historial_path = DATA_DIR / "historial.csv" # <--- MODIFICACIÓN: Definir la ruta aquí
+    historial_path = DATA_DIR / "historial.csv" 
     df = _load_csv_or_handle_error(historial_path, "reporte de tiempo de estadía min/max")
     if df is None:
         return
@@ -350,10 +341,10 @@ def reporte_ocupacion_parqueadero():
     Muestra la ocupación actual del parqueadero (número de vehículos activos).
     """
     print("\n--- OCUPACIÓN DEL PARQUEADERO ---")
-    parqueo_path = DATA_DIR / "parqueo.csv" # <--- MODIFICACIÓN: Definir la ruta aquí
+    parqueo_path = DATA_DIR / "parqueo.csv" 
     df = _load_csv_or_handle_error(parqueo_path, "reporte de ocupación del parqueadero")
     if df is None:
-        print("Ocupación actual: 0 vehículos.") # Asegurarse de mostrar 0 si el archivo está vacío/no existe
+        print("Ocupación actual: 0 vehículos.") # Asegura de mostrar 0 si el archivo está vacío/no existe
         return
 
     try:
