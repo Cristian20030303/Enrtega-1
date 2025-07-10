@@ -8,7 +8,7 @@ import sys
 from utils.validaciones import validar_cedula, validar_correo_udea, validar_nombre_o_apellido
 from utils.helpers import usuario_registrado, generar_id_unico, limpiar_pantalla 
 
-# Rutas a los archivos csv
+# Definimos las rutas a los archivos CSV
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent 
 DATA_DIR = project_root / "data"
