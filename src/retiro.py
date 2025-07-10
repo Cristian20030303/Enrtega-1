@@ -11,7 +11,7 @@ from utils.helpers import limpiar_pantalla, obtener_tiempo_actual, \
     calcular_diferencia_minutos, calcular_costo_total
 from utils.validaciones import validar_placa
 
-# Rutas a los archivos CSV
+# Definimos las rutas a los archivos CSV
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent
 RUTA_PARQUEO = project_root / "data" / "parqueo.csv"
