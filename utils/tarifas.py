@@ -23,7 +23,7 @@ def calcular_tarifa(tiempo_minutos: int | float, tipo_vehiculo: str) -> float:
         raise ValueError(f"Este parqueadero es exclusivo para 'carros'. Tipo de vehículo '{tipo_vehiculo}' no permitido.")
 
     # Definimos la tarifa por minuto para carros
-    tarifa_minuto_carro = 80 
+    tarifa_minuto_carro = 166.6666 
 
     # Validamos que tiempo_minutos sea un valor numérico
     if not isinstance(tiempo_minutos, (int, float)):
