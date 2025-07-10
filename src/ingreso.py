@@ -6,11 +6,11 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-# Importar funciones de utils/
+# Importar funciones de la carpeta de utils
 from utils.helpers import obtener_id_usuario, limpiar_pantalla, obtener_tiempo_actual, contar_vehiculos_activos, hay_espacio_disponible  
 from utils.validaciones import validar_cedula, validar_placa
 
-# Rutas a los archivos CSV
+# Definimos las rutas a los archivos CSV
 current_file_path = Path(__file__).resolve()
 project_root = current_file_path.parent.parent 
 DATA_DIR = project_root / "data" 
@@ -18,21 +18,18 @@ DATA_DIR = project_root / "data"
 RUTA_PARQUEO = DATA_DIR / "parqueo.csv"
 RUTA_USUARIOS = DATA_DIR / "usuarios.csv" 
 
+# Definimos la funcion que va a cumplir
 def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = None, 
                        placa_existente: str = None, tipo_vehiculo_existente: str = None):
     limpiar_pantalla() 
     print("\n--- INGRESO DE VEHÍCULO ---")
     
-    if not hay_espacio_disponible(RUTA_PARQUEO): # Llama a la nueva función de helpers
+    if not hay_espacio_disponible(RUTA_PARQUEO): 
         print("\n¡ATENCIÓN! El parqueadero ha alcanzado su capacidad máxima.")
-        # helpers.MAX_CAPACIDAD_PARQUEADERO ya está disponible porque lo importamos implícitamente
-        # y es una constante global en helpers.py.
-        # Si prefieres ser explícito, podrías usar `from utils.helpers import MAX_CAPACIDAD_PARQUEADERO`
-        # pero es más común acceder a constantes de módulos importados como `helpers.MAX_CAPACIDAD_PARQUEADERO`
         print(f"No se puede registrar el ingreso de más vehículos en este momento.")
         input("Presione Enter para continuar...")
-        return # Sale de la función si no hay espacio
-    # Asignar los valores de los argumentos opcionales o None
+        return 
+    # Asignamos los valores de los argumentos
     id_usuario = id_usuario_existente
     cedula = cedula_existente
     placa = placa_existente
@@ -48,15 +45,15 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
                 limpiar_pantalla()
                 print("\n--- INGRESO DE VEHÍCULO ---") # Volvemos a imprimir el encabezado
             else:
-                # 1. Obtener ID de usuario (y verificar si está registrado)
+                # 1. Obtenemos ID de usuario (y verificamos si está registrado)
                 id_usuario = obtener_id_usuario(cedula, RUTA_USUARIOS)
                 if id_usuario is None:
                     print("El usuario no está registrado o hubo un problema al buscarlo. Por favor, registre al usuario primero.")
                     input("Presione Enter para continuar...")
-                    return # Salir de la función
+                    return 
                 else:
                     print(f"Usuario (ID: {id_usuario}) encontrado.") 
-                    break # Salir del bucle de cédula
+                    break # Salimos del bucle de cédula
     else:
         print(f"Usando ID de usuario: {id_usuario} (proporcionado desde el registro).")
 
@@ -135,7 +132,7 @@ def ingresar_vehiculo(id_usuario_existente: int = None, cedula_existente: str = 
             writer = csv.DictWriter(file, fieldnames=fieldnames)
 
             if not file_exists:
-                writer.writeheader() # Escribir encabezado si el archivo es nuevo/vacío
+                writer.writeheader() # Escribimos el encabezado si el archivo es nuevo/vacío
 
             writer.writerow(nuevo_ingreso)
         print(f"Vehículo '{placa}' ingresado exitosamente.")
